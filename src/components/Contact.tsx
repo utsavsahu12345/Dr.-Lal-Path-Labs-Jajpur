@@ -248,7 +248,7 @@ export function Contact() {
                 <p className="mt-4 text-sm font-medium text-navy">
                   Monday - Saturday
                   <br />
-                  7:00 AM - 10:00 PM
+                  06:00 AM - 8:00 PM
                 </p>
               </div>
               <div className="rounded-3xl bg-secondary/60 p-6">
