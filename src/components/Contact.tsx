@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import emailjs from "@emailjs/browser";
 import { CalendarCheck, CheckCircle2, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeading } from "./SectionHeading";
@@ -15,10 +16,18 @@ type Fields = {
 
 const empty: Fields = { name: "", email: "", phone: "", service: "", date: "", message: "" };
 
+// EmailJS config - replace with your actual IDs from emailjs.com dashboard
+const EMAILJS_SERVICE_ID = "service_t0zqqr1";
+const EMAILJS_TEMPLATE_ID = "template_mxilw55";
+const EMAILJS_PUBLIC_KEY = "QFnbNAibhQMJg1Wen";
+const RECEIVER_EMAIL = "utsavsahu12345@gmail.com";
+
 export function Contact() {
   const [values, setValues] = useState<Fields>(empty);
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const set = (k: keyof Fields, v: string) => setValues((p) => ({ ...p, [k]: v }));
 
@@ -34,11 +43,37 @@ export function Contact() {
     return Object.keys(e).length === 0;
   };
 
-  const onSubmit = (ev: FormEvent) => {
+  const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
     if (!validate()) return;
-    setSent(true);
-    setValues(empty);
+
+    setSending(true);
+    setSendError(null);
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_email: RECEIVER_EMAIL,
+          from_name: values.name,
+          from_email: values.email,
+          phone: values.phone,
+          service: values.service,
+          preferred_date: values.date,
+          message: values.message,
+        },
+        { publicKey: EMAILJS_PUBLIC_KEY }
+      );
+
+      setSent(true);
+      setValues(empty);
+    } catch (err) {
+      console.error("EmailJS send failed:", err);
+      setSendError("Something went wrong while sending your request. Please try again or call us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const field =
@@ -164,11 +199,16 @@ export function Contact() {
                     />
                     {errors.message ? <p className="mt-1.5 text-xs text-destructive">{errors.message}</p> : null}
                   </div>
+
+                  {sendError ? <p className="sm:col-span-2 text-sm text-destructive">{sendError}</p> : null}
+
                   <button
                     type="submit"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-7 py-3.5 text-sm font-semibold text-brand-foreground shadow-card transition-transform hover:scale-[1.02] sm:col-span-2"
+                    disabled={sending}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-7 py-3.5 text-sm font-semibold text-brand-foreground shadow-card transition-transform hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 sm:col-span-2"
                   >
-                    <CalendarCheck className="h-4 w-4" /> Book Now
+                    <CalendarCheck className="h-4 w-4" />{" "}
+                    {sending ? "Sending..." : "Book Now"}
                   </button>
                 </form>
               )}
@@ -192,15 +232,14 @@ export function Contact() {
                 </ul>
               </div>
               <div className="rounded-3xl bg-secondary/60 p-6">
-                <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary">
-                  <Mail className="h-4 w-4" /> Email
-                </h3>
-                <a
-                  href={`mailto:${business.email}`}
-                  className="mt-4 block break-all text-sm font-medium text-navy transition-colors hover:text-primary"
-                >
-                  {business.email}
-                </a>
+<h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary">
+  <Mail className="h-4 w-4" /> Email
+</h3>
+<a>
+  href={`mailto:${business.email}`}
+  className="mt-4 block break-all text-sm font-medium text-navy transition-colors hover:text-primary"
+  {business.email}
+</a>
               </div>
               <div className="rounded-3xl bg-secondary/60 p-6">
                 <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary">
