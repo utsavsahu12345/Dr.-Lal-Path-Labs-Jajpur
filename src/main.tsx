@@ -12,6 +12,7 @@ const router = createRouter({
   context: {
     queryClient,
   },
+  basepath: '/Dr.-Lal-Path-Labs-Jajpur/',
 })
 
 declare module '@tanstack/react-router' {
