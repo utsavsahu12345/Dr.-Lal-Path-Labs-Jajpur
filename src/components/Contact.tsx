@@ -235,9 +235,9 @@ export function Contact() {
 <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary">
   <Mail className="h-4 w-4" /> Email
 </h3>
-<a>
+<a
   href={`mailto:${business.email}`}
-  className="mt-4 block break-all text-sm font-medium text-navy transition-colors hover:text-primary"
+  className="mt-4 block break-all text-sm font-medium text-navy transition-colors hover:text-primary">
   {business.email}
 </a>
               </div>
